@@ -70,6 +70,9 @@ class Watch {
     buildHFormat() {
         helper.setNodeTo('label', {
             children: [
+                helper.setNode('strong', {
+                    text: '12 часовой формат'
+                }),
                 helper.setNode('input', {
                     attrs: {
                         'type': 'checkbox',
@@ -96,7 +99,6 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             let myTimezone = await api.getLocation(true)
             let areas = await api.getLocation(false, myTimezone.timezone.split('/')[0])
-            let format = helper.getNode('input[type=checkbox]:checked') ? true : false
 
             areas.forEach(area => {
                 helper.setNodeTo('option', {
@@ -107,19 +109,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, helper.getNode('select'))
             });
 
+            helper.getNode(`option[value="${myTimezone.timezone}"]`).setAttribute('selected','')
+
             helper.getNode('select').addEventListener('change', async function(){
                 let location = await api.getLocation(false, this.value)
+                let format = helper.getNode('input[type=checkbox]:checked') ? true : false
                 let UTC = new Date().toLocaleString('en-US', {timeZone: location.timezone})
                     UTC = new Date(UTC)
-
+                    
                 helper.getNode('time').innerText = UTC.toLocaleTimeString('en-US', {hour12: format})
             });
 
             setInterval(() => {
-                var time = new Date().toLocaleTimeString().split(':');
+                let time = new Date().toLocaleTimeString().split(':');
                     helper.getNode('#hours').setAttribute('style', `fill:#84dbff; transform: rotate(${Number(time[0]) * 360 / 12}deg)`)
                     helper.getNode('#minutes').setAttribute('style', `fill:#f1543f; transform: rotate(${Number(time[1]) * 360 / 60}deg)`)
-                    helper.getNode('#seconds').setAttribute('style', `fill:#f1543f; transform: rotate(${Number(time[2]) * 360 / 60}deg)`)
+                    helper.getNode('#seconds').setAttribute('style', `fill:#3ff1ae; transform: rotate(${Number(time[2]) * 360 / 60}deg)`)
             }, 1000);
     
         } catch (error) {
